@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173f70">
+  <meta name="description" content="คลัง Prompt AI สำหรับแบ่งปัน ค้นหา และคัดลอก Prompt เพื่อการเรียนรู้ร่วมกัน โรงเรียนวัดประยุรวงศ์">
+  <title>คลัง Prompt AI รร.วัดประยุรวงศ์</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --navy: #173f70;
+      --navy-dark: #102e52;
+      --gold: #f4c95d;
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #243247;
+      --muted: #64748b;
+      --border: #dfe7f1;
+      --success: #177245;
+      --danger: #b42318;
+      --shadow: 0 8px 24px rgba(28, 53, 84, .08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Tahoma, "Noto Sans Thai", Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .hero {
+      color: #fff;
+      background: linear-gradient(135deg, var(--navy-dark), var(--navy));
+      padding: 27px 18px 30px;
+    }
+    .hero-inner, main, footer { max-width: 1120px; margin: 0 auto; }
+    .brand { display: flex; align-items: center; gap: 16px; }
+    .logo {
+      flex: 0 0 auto;
+      width: 76px; height: 76px;
+      object-fit: contain;
+      background: #fff;
+      border-radius: 50%;
+      padding: 5px;
+      box-shadow: 0 3px 12px rgba(0,0,0,.16);
+    }
+    h1 { margin: 0; font-size: clamp(21px, 3vw, 31px); line-height: 1.35; }
+    .tagline { color: #e1ebf9; margin: 6px 0 0; }
+    main { padding: 26px 18px 42px; }
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      margin-bottom: 18px;
+      align-items: stretch;
+    }
+    .search-wrap { position: relative; }
+    .search-icon {
+      position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+      color: var(--muted); font-size: 19px; pointer-events: none;
+    }
+    .search-input {
+      width: 100%; min-height: 52px; padding: 12px 15px 12px 45px;
+      border: 1px solid var(--border); border-radius: 13px;
+      background: white; outline: none; box-shadow: 0 2px 8px rgba(20,50,80,.03);
+    }
+    .search-input:focus, .field:focus { border-color: #6e98c8; box-shadow: 0 0 0 3px rgba(64,124,190,.14); }
+    .btn {
+      border: 0; border-radius: 11px; padding: 12px 18px; font-weight: 700;
+      transition: transform .12s ease, opacity .12s ease;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { background: var(--gold); color: #26384e; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+    .btn-blue { background: var(--navy); color: white; }
+    .btn-outline { background: #fff; color: var(--navy); border: 1px solid var(--border); }
+    .btn:disabled { opacity: .6; cursor: wait; }
+    .list-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 10px 1px 16px; }
+    .list-title { font-size: 19px; font-weight: 700; margin: 0; }
+    .stats { font-size: 13px; color: var(--muted); }
+    .status { margin: 0 0 15px; color: var(--muted); font-size: 14px; }
+    .status:empty { display: none; }
+    .status.error { color: var(--danger); }
+    .status.success { color: var(--success); }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 17px; }
+    .card {
+      position: relative; min-width: 0; background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 18px; box-shadow: var(--shadow);
+      display: flex; flex-direction: column; gap: 10px;
+      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(28, 53, 84, .12); border-color: #cbd8e8; }
+    .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .card h2 { margin: 3px 0 0; font-size: 18px; line-height: 1.45; overflow-wrap: anywhere; flex: 1; }
+    .menu-wrap { position: relative; flex: 0 0 auto; }
+    .menu-button {
+      width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center;
+      border: 1px solid #e4eaf2; border-radius: 11px; background: #f8fafc; color: #3c4c62;
+      font-size: 25px; line-height: 1; letter-spacing: 1px;
+    }
+    .menu-button:hover, .menu-button[aria-expanded="true"] { background: #eaf1fa; border-color: #cbd9ec; }
+    .card-menu {
+      display: none; position: absolute; z-index: 10; top: 42px; right: 0; width: 176px;
+      padding: 6px; background: #fff; border: 1px solid var(--border); border-radius: 12px;
+      box-shadow: 0 12px 30px rgba(20, 42, 70, .17);
+    }
+    .card-menu.open { display: grid; gap: 3px; }
+    .menu-item {
+      width: 100%; padding: 10px 11px; border: 0; border-radius: 8px; background: transparent;
+      color: var(--text); text-align: left; font-size: 13px; white-space: nowrap;
+    }
+    .menu-item:hover { background: #f1f5f9; }
+    .menu-item.delete { color: var(--danger); }
+    .menu-item.delete:hover { background: #fff0ef; }
+    .description { color: #5b6b80; font-size: 14px; margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .prompt-label { font-size: 13px; font-weight: 700; color: #465972; margin-top: 2px; }
+    .prompt-box {
+      margin: 0; border: 1px solid #e6ecf3; background: #f7f9fc; border-radius: 10px;
+      padding: 12px; font-family: inherit; font-size: 13px; line-height: 1.65;
+      white-space: pre-wrap; overflow-wrap: anywhere; max-height: 220px; overflow: auto;
+    }
+    .card-bottom { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 5px; }
+    .copy-note { color: var(--muted); font-size: 12px; }
+    .copy-btn { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+    .empty {
+      grid-column: 1 / -1; text-align: center; background: white;
+      border: 1px dashed #cdd8e6; border-radius: 16px; padding: 42px 18px; color: var(--muted);
+    }
+    .empty strong { display: block; font-size: 18px; color: var(--text); margin-bottom: 6px; }
+    footer { padding: 0 18px 28px; text-align: center; color: var(--muted); font-size: 13px; }
+    /* หน้าต่างเพิ่ม/แก้ไข Prompt: อยู่กลางจอและมีขนาดอ่านง่ายบน GitHub Pages */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 9999; background: rgba(14, 31, 52, .64);
+      display: none; align-items: center; justify-content: center;
+      padding: 20px; overflow-y: auto; box-sizing: border-box;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      display: block; position: relative; flex: 0 1 760px;
+      width: min(760px, calc(100vw - 40px)); max-width: 760px;
+      max-height: calc(100vh - 40px); max-height: calc(100dvh - 40px);
+      margin: auto; box-sizing: border-box;
+      background: #fff; color: var(--text); border-radius: 18px;
+      overflow-y: auto; overscroll-behavior: contain;
+      padding: 28px; box-shadow: 0 24px 80px rgba(0,0,0,.30);
+      font-size: 16px; line-height: 1.5;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 22px; }
+    .modal-header h2 { margin: 0; font-size: 25px; line-height: 1.3; }
+    .modal-hint { color: var(--muted); font-size: 15px; margin: 7px 0 0; }
+    .close-btn { flex: 0 0 auto; border: 0; background: #edf2f7; color: #2b3c50; border-radius: 10px; width: 42px; height: 42px; font-size: 25px; cursor: pointer; }
+    .form { display: grid; gap: 18px; }
+    .field-label { display: block; font-weight: 700; font-size: 16px; margin-bottom: 8px; }
+    .field { display: block; width: 100%; box-sizing: border-box; border: 1px solid #cfd9e5; border-radius: 11px; padding: 13px 14px; outline: none; background: white; font: inherit; font-size: 16px; }
+    .field:focus { border-color: #5085d8; box-shadow: 0 0 0 3px rgba(80,133,216,.15); }
+    textarea.field { resize: vertical; min-height: 120px; }
+    textarea.prompt-field { min-height: 230px; }
+    .field-help { color: var(--muted); font-size: 13px; margin-top: 6px; }
+    .form-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-end; margin-top: 6px; }
+    .form-actions .btn { min-height: 44px; padding: 11px 18px; font-size: 15px; }
+    .privacy-note { background: #fff8e6; border: 1px solid #f3df9d; border-radius: 10px; padding: 12px 14px; font-size: 14px; color: #69531c; margin: 0; }
+    @media (max-width: 900px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 620px) {
+      .hero { padding-top: 20px; }
+      .logo { width: 62px; height: 62px; }
+      .brand { gap: 12px; }
+      .toolbar { grid-template-columns: 1fr; }
+      .toolbar .btn { width: 100%; }
+      .cards { grid-template-columns: 1fr; }
+      .list-top { align-items: flex-start; flex-direction: column; gap: 3px; }
+      .modal-backdrop { padding: 12px; align-items: center; }
+      .modal { flex-basis: 100%; width: calc(100vw - 24px); max-width: 760px; max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); padding: 20px; border-radius: 15px; }
+      .modal-header h2 { font-size: 22px; }
+      .modal-hint { font-size: 14px; }
+      textarea.prompt-field { min-height: 190px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner brand">
+      <img class="logo"
+        src="./school-logo.png"
+        alt="ตราโรงเรียนวัดประยุรวงศ์"
+        referrerpolicy="no-referrer">
+      <div>
+        <h1>คลัง Prompt AI รร.วัดประยุรวงศ์</h1>
+        <p class="tagline">คลังแบ่งปัน Prompt เพื่อสร้างสรรค์การเรียนรู้ร่วมกัน</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="toolbar" aria-label="ค้นหาและเพิ่ม Prompt">
+      <div class="search-wrap">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <input class="search-input" id="searchInput" type="search"
+          placeholder="ค้นหาจากชื่อ คำอธิบาย หรือเนื้อหา Prompt..."
+          aria-label="ค้นหา Prompt">
+      </div>
+      <button class="btn btn-primary" id="openAdd" type="button">＋ เพิ่ม Prompt ใหม่</button>
+    </section>
+
+    <div class="list-top">
+      <h2 class="list-title">Prompt ทั้งหมดในคลัง</h2>
+      <div class="stats" id="stats" aria-live="polite">กำลังโหลดข้อมูล...</div>
+    </div>
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+    <section class="cards" id="cards" aria-label="รายการ Prompt"></section>
+  </main>
+
+  <footer>คลัง Prompt AI รร.วัดประยุรวงศ์ · แบ่งปันความรู้เพื่อการเรียนรู้ร่วมกัน</footer>
+
+  <div class="modal-backdrop" id="modalBackdrop" role="presentation">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <div>
+          <h2 id="modalTitle">เพิ่ม Prompt ใหม่</h2>
+          <p class="modal-hint" id="modalHint">กรอกข้อมูล 3 ช่อง แล้วกดบันทึก Prompt</p>
+        </div>
+        <button class="close-btn" type="button" id="closeModal" aria-label="ปิดหน้าต่าง">×</button>
+      </div>
+      <form class="form" id="promptForm">
+        <div>
+          <label class="field-label" for="titleInput">1. ชื่อ Prompt</label>
+          <input class="field" id="titleInput" name="title" maxlength="150" required
+            placeholder="เช่น สร้างภาพการ์ตูน 3 มิติสำหรับสื่อการสอน">
+        </div>
+        <div>
+          <label class="field-label" for="descriptionInput">2. คำอธิบาย</label>
+          <textarea class="field" id="descriptionInput" name="description" maxlength="1000" required
+            placeholder="อธิบายสั้น ๆ ว่า Prompt นี้ใช้ทำอะไร หรือเหมาะกับงานแบบไหน"></textarea>
+        </div>
+        <div>
+          <label class="field-label" for="promptInput">3. Prompt ที่ต้องการแบ่งปัน</label>
+          <textarea class="field prompt-field" id="promptInput" name="prompt" maxlength="20000" required
+            placeholder="วางหรือพิมพ์ Prompt ฉบับเต็มไว้ที่นี่"></textarea>
+          <div class="field-help">ไม่เกิน 20,000 ตัวอักษร</div>
+        </div>
+        <p class="privacy-note">ก่อนบันทึก กรุณาตรวจสอบว่าเนื้อหาไม่มีรหัสผ่าน ข้อมูลส่วนบุคคล หรือข้อมูลลับของโรงเรียน</p>
+        <p class="status" id="formStatus" role="status" aria-live="polite"></p>
+        <div class="form-actions">
+          <button class="btn btn-outline" type="button" id="cancelAdd">ยกเลิก</button>
+          <button class="btn btn-blue" type="submit" id="saveBtn">บันทึก Prompt</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    // 1) วาง URL เว็บแอป Apps Script ที่ลงท้ายด้วย /exec ระหว่างเครื่องหมายอัญประกาศด้านล่าง
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzEGs5iOeVbGk1FkIQWmtoEr-Zau9xc3bDxjqAYKq5cvJ9_5WIV7tXKOKevAo7N1Mzy4g/exec';
+    const REFRESH_MS = 60000;
+
+    let prompts = [];
+    let loadInProgress = false;
+    let editingId = null;
+
+    const $ = (id) => document.getElementById(id);
+    const statusEl = $('status');
+    const formStatusEl = $('formStatus');
+
+    function isConfigured() {
+      return API_URL.startsWith('https://script.google.com/') && API_URL.endsWith('/exec');
+    }
+
+    function setStatus(message, kind = '') {
+      statusEl.textContent = message;
+      statusEl.className = 'status' + (kind ? ' ' + kind : '');
+    }
+
+    function setFormStatus(message, kind = '') {
+      formStatusEl.textContent = message;
+      formStatusEl.className = 'status' + (kind ? ' ' + kind : '');
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, (ch) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[ch]);
+    }
+
+    function makeId() {
+      if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+        return window.crypto.randomUUID().replace(/-/g, '');
+      }
+      return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 15);
+    }
+
+    function fetchPrompts() {
+      return new Promise((resolve, reject) => {
+        const callback = '__promptResponse_' + makeId();
+        const script = document.createElement('script');
+        let finished = false;
+
+        const cleanup = () => {
+          delete window[callback];
+          script.remove();
+          clearTimeout(timeout);
+        };
+        const done = (fn, value) => {
+          if (finished) return;
+          finished = true;
+          cleanup();
+          fn(value);
+        };
+        const timeout = setTimeout(() => {
+          done(reject, new Error('หมดเวลารอข้อมูลจาก Google Sheets'));
+        }, 15000);
+
+        window[callback] = (result) => {
+          if (!result || result.ok !== true || !Array.isArray(result.data)) {
+            done(reject, new Error((result && result.message) || 'รูปแบบข้อมูลไม่ถูกต้อง'));
+            return;
+          }
+          done(resolve, result.data);
+        };
+
+        script.onerror = () => done(reject, new Error('เชื่อมต่อฐานข้อมูลไม่ได้'));
+        script.src = API_URL + '?action=list&callback=' + encodeURIComponent(callback) + '&_=' + Date.now();
+        document.body.appendChild(script);
+      });
+    }
+
+    async function loadPrompts(options = {}) {
+      if (loadInProgress) return prompts;
+      if (!isConfigured()) {
+        $('stats').textContent = 'ยังไม่ได้เชื่อมฐานข้อมูล';
+        setStatus('ขั้นตอนติดตั้ง: ใส่ URL /exec ของ Apps Script ในตัวแปร API_URL ภายในไฟล์ index.html', 'error');
+        renderCards();
+        return [];
+      }
+
+      loadInProgress = true;
+      if (!options.quiet) setStatus('กำลังโหลด Prompt จากคลัง...');
+      try {
+        prompts = await fetchPrompts();
+        renderCards();
+        if (!options.keepStatus) setStatus('ข้อมูลอัปเดตแล้ว', 'success');
+        return prompts;
+      } catch (error) {
+        if (!options.quiet) setStatus('โหลดข้อมูลไม่สำเร็จ: ' + error.message + ' กรุณาตรวจสอบ URL และสิทธิ์ Apps Script', 'error');
+        $('stats').textContent = 'โหลดข้อมูลไม่สำเร็จ';
+        return null;
+      } finally {
+        loadInProgress = false;
+      }
+    }
+
+    function renderCards() {
+      const q = $('searchInput').value.trim().toLocaleLowerCase('th');
+      const filtered = prompts.filter((item) => {
+        const haystack = [item.title, item.description, item.prompt].join('\n').toLocaleLowerCase('th');
+        return haystack.includes(q);
+      });
+
+      $('stats').textContent = q
+        ? `พบ ${filtered.length} รายการ จากทั้งหมด ${prompts.length} Prompt`
+        : `ทั้งหมด ${prompts.length} Prompt`;
+
+      if (filtered.length === 0) {
+        $('cards').innerHTML = `<div class="empty"><strong>${q ? 'ไม่พบ Prompt ที่ค้นหา' : 'ยังไม่มี Prompt ในคลัง'}</strong>${q ? 'ลองเปลี่ยนคำค้นหาแล้วค้นหาอีกครั้ง' : 'กดปุ่ม “เพิ่ม Prompt ใหม่” เพื่อแบ่งปัน Prompt แรกของคุณ'}</div>`;
+        return;
+      }
+
+      $('cards').innerHTML = filtered.map((item) => `
+        <article class="card">
+          <div class="card-header">
+            <h2>${escapeHTML(item.title)}</h2>
+            <div class="menu-wrap">
+              <button class="menu-button" type="button" data-menu-id="${escapeHTML(item.id)}"
+                aria-label="ตัวเลือกเพิ่มเติมสำหรับ ${escapeHTML(item.title)}" aria-expanded="false" title="ตัวเลือกเพิ่มเติม">⋮</button>
+              <div class="card-menu" data-menu-for="${escapeHTML(item.id)}">
+                <button class="menu-item" type="button" data-card-action="edit" data-id="${escapeHTML(item.id)}">✎ แก้ไขรายละเอียด</button>
+                <button class="menu-item delete" type="button" data-card-action="delete" data-id="${escapeHTML(item.id)}">⌫ ลบ Prompt</button>
+              </div>
+            </div>
+          </div>
+          <p class="description">${escapeHTML(item.description)}</p>
+          <div class="prompt-label">เนื้อหา Prompt</div>
+          <pre class="prompt-box">${escapeHTML(item.prompt)}</pre>
+          <div class="card-bottom">
+            <span class="copy-note">พร้อมนำไปใช้งาน</span>
+            <button class="btn btn-blue copy-btn" type="button" data-copy-id="${escapeHTML(item.id)}">▢ คัดลอก Prompt</button>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function openModal(mode = 'add', item = null) {
+      const isEdit = mode === 'edit' && item;
+      editingId = isEdit ? item.id : null;
+      $('promptForm').reset();
+      $('modalTitle').textContent = isEdit ? 'แก้ไข Prompt' : 'เพิ่ม Prompt ใหม่';
+      $('modalHint').textContent = isEdit
+        ? 'แก้ไขข้อมูลที่ต้องการ แล้วกดบันทึกการแก้ไข'
+        : 'กรอกข้อมูล 3 ช่อง แล้วกดบันทึก Prompt';
+      $('saveBtn').textContent = isEdit ? 'บันทึกการแก้ไข' : 'บันทึก Prompt';
+      if (isEdit) {
+        $('titleInput').value = item.title || '';
+        $('descriptionInput').value = item.description || '';
+        $('promptInput').value = item.prompt || '';
+      }
+      $('modalBackdrop').classList.add('open');
+      setFormStatus('');
+      setTimeout(() => $('titleInput').focus(), 30);
+    }
+
+    function closeModal() {
+      $('modalBackdrop').classList.remove('open');
+      // หากผู้ใช้ปิดฟอร์มเอง จะไม่ค้างอยู่ในโหมดแก้ไขครั้งถัดไป
+      if (!document.activeElement || document.activeElement.id !== 'saveBtn') {
+        editingId = null;
+      }
+    }
+
+
+    function closeCardMenus() {
+      document.querySelectorAll('.card-menu.open').forEach((menu) => menu.classList.remove('open'));
+      document.querySelectorAll('.menu-button[aria-expanded="true"]').forEach((button) => button.setAttribute('aria-expanded', 'false'));
+    }
+
+    async function waitForChange(id, action, expected = {}) {
+      // คำขอ POST แบบ no-cors อ่านคำตอบโดยตรงไม่ได้ จึงอ่านรายการใหม่เพื่อยืนยันผล
+      for (let attempt = 0; attempt < 12; attempt++) {
+        await new Promise((resolve) => setTimeout(resolve, attempt === 0 ? 500 : 800));
+        try {
+          const fresh = await fetchPrompts();
+          prompts = fresh;
+          renderCards();
+          const item = fresh.find((record) => record.id === id);
+          if (action === 'delete' && !item) return true;
+          if ((action === 'add' || action === 'update') && item) {
+            const matches = item.title === expected.title &&
+              item.description === expected.description && item.prompt === expected.prompt;
+            if (matches) return true;
+          }
+        } catch (error) {
+          // ลองใหม่จนกว่าจะครบจำนวนครั้ง
+        }
+      }
+      return false;
+    }
+
+    async function deletePrompt(item) {
+      if (!isConfigured()) {
+        setStatus('ยังไม่ได้ตั้งค่า URL ของ Apps Script', 'error');
+        return;
+      }
+      const confirmed = window.confirm(`ต้องการลบ Prompt “${item.title}” ใช่หรือไม่?\nเมื่อลบแล้วจะไม่สามารถกู้คืนจากหน้าเว็บได้`);
+      if (!confirmed) return;
+
+      closeCardMenus();
+      setStatus('กำลังลบ Prompt...', '');
+      try {
+        const body = new URLSearchParams({ action: 'delete', id: item.id });
+        await fetch(API_URL, { method: 'POST', mode: 'no-cors', body });
+        const deleted = await waitForChange(item.id, 'delete');
+        if (deleted) {
+          setStatus('ลบ Prompt เรียบร้อยแล้ว', 'success');
+        } else {
+          setStatus('ยังยืนยันการลบไม่ได้ โปรดตรวจสอบ Google Sheets และสิทธิ์ของ Apps Script', 'error');
+        }
+      } catch (error) {
+        setStatus('ลบ Prompt ไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่', 'error');
+      }
+    }
+
+    $('openAdd').addEventListener('click', openModal);
+    $('closeModal').addEventListener('click', closeModal);
+    $('cancelAdd').addEventListener('click', closeModal);
+    $('modalBackdrop').addEventListener('click', (event) => {
+      if (event.target === $('modalBackdrop')) closeModal();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeModal();
+    });
+    $('searchInput').addEventListener('input', renderCards);
+
+    $('cards').addEventListener('click', async (event) => {
+      const menuButton = event.target.closest('button[data-menu-id]');
+      if (menuButton) {
+        const id = menuButton.dataset.menuId;
+        const menu = $('cards').querySelector(`[data-menu-for="${CSS.escape(id)}"]`);
+        const shouldOpen = menu && !menu.classList.contains('open');
+        closeCardMenus();
+        if (shouldOpen) {
+          menu.classList.add('open');
+          menuButton.setAttribute('aria-expanded', 'true');
+        }
+        return;
+      }
+
+      const actionButton = event.target.closest('button[data-card-action]');
+      if (actionButton) {
+        const item = prompts.find((record) => record.id === actionButton.dataset.id);
+        const action = actionButton.dataset.cardAction;
+        closeCardMenus();
+        if (!item) {
+          setStatus('ไม่พบ Prompt รายการนี้ อาจมีการเปลี่ยนแปลงจากผู้ใช้อื่นแล้ว', 'error');
+          await loadPrompts({ quiet: true });
+          return;
+        }
+        if (action === 'edit') {
+          openModal('edit', item);
+        } else if (action === 'delete') {
+          await deletePrompt(item);
+        }
+        return;
+      }
+
+      const copyButton = event.target.closest('button[data-copy-id]');
+      if (!copyButton) return;
+      const item = prompts.find((record) => record.id === copyButton.dataset.copyId);
+      if (!item) return;
+
+      try {
+        await navigator.clipboard.writeText(item.prompt);
+        const oldText = copyButton.textContent;
+        copyButton.textContent = '✓ คัดลอกแล้ว';
+        setStatus('คัดลอก Prompt แล้ว สามารถนำไปวางใช้งานได้เลย', 'success');
+        setTimeout(() => { if (copyButton.isConnected) copyButton.textContent = oldText; }, 1800);
+      } catch (error) {
+        setStatus('เบราว์เซอร์ไม่อนุญาตให้คัดลอกอัตโนมัติ กรุณาเลือกข้อความในช่อง Prompt แล้วคัดลอกเอง', 'error');
+      }
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('.menu-wrap')) closeCardMenus();
+    });
+
+    $('promptForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!isConfigured()) {
+        setFormStatus('ยังไม่ได้ใส่ URL ของ Apps Script กรุณาตั้งค่า API_URL ก่อน', 'error');
+        return;
+      }
+
+      const title = $('titleInput').value.trim();
+      const description = $('descriptionInput').value.trim();
+      const prompt = $('promptInput').value.trim();
+      if (!title || !description || !prompt) {
+        setFormStatus('กรุณากรอกข้อมูลทั้ง 3 ช่องให้ครบ', 'error');
+        return;
+      }
+
+      const isEdit = Boolean(editingId);
+      const action = isEdit ? 'update' : 'add';
+      const id = editingId || makeId();
+      const saveBtn = $('saveBtn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = isEdit ? 'กำลังบันทึกการแก้ไข...' : 'กำลังบันทึก...';
+      setFormStatus(isEdit ? 'กำลังอัปเดตข้อมูลใน Google Sheets...' : 'กำลังส่งข้อมูลไปยัง Google Sheets...');
+
+      try {
+        const body = new URLSearchParams({ action, id, title, description, prompt });
+        // no-cors ทำให้เบราว์เซอร์อ่านคำตอบ POST ไม่ได้ จึงตรวจสอบผลด้วยการโหลดรายการกลับมา
+        await fetch(API_URL, { method: 'POST', mode: 'no-cors', body });
+        const saved = await waitForChange(id, action, { title, description, prompt });
+
+        if (saved) {
+          $('promptForm').reset();
+          closeModal();
+          editingId = null;
+          $('searchInput').value = '';
+          renderCards();
+          setStatus(isEdit ? 'แก้ไข Prompt เรียบร้อยแล้ว' : 'บันทึก Prompt เรียบร้อยแล้ว และแสดงในคลังแล้ว', 'success');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          setFormStatus('ยังยืนยันการบันทึกไม่ได้ โปรดตรวจสอบ Google Sheets และสิทธิ์ของ Apps Script ก่อนลองใหม่', 'error');
+        }
+      } catch (error) {
+        setFormStatus('ส่งข้อมูลไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ตและลองใหม่', 'error');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = isEdit ? 'บันทึกการแก้ไข' : 'บันทึก Prompt';
+      }
+    });
+
+    loadPrompts();
+    setInterval(() => loadPrompts({ quiet: true }), REFRESH_MS);
+  </script>
+</body>
+</html>
